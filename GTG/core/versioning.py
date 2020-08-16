@@ -19,6 +19,7 @@
 """Code to read older versions of the XML file."""
 
 import os
+import html
 
 from lxml import etree as et
 from GTG.core.dates import Date
@@ -163,5 +164,23 @@ def convert_task(task: et.Element, ds: datastore) -> Optional[et.Element]:
 def convert_content(content: str) -> str:
     """Convert a task contents to new format."""
 
-    # TODO: Implement this
-    return content
+    print('cc', content)
+    # Unescape &quot;a and friends
+    text = html.unescape(content)
+
+    # Get rid of the content tag if it slip all the way there
+    text = text.replace('</content>', '')
+    text = text.replace('<content>', '')
+
+    # Tag tags arent' needed anymore
+    text = text.replace('</tag>', '')
+    text = text.replace('<tag>', '')
+
+    # New subtask style
+    text = text.replace('</subtask>', ' !}')
+    text = text.replace('<subtask>', '{! ')
+
+    # Get rid of the arrow and indent
+    text = text.replace('→', '')
+
+    return text
